@@ -9,6 +9,7 @@ import WelcomeScreen from "./WelcomeScreen";
 interface ChatAreaProps {
   messages: Message[];
   isLoading: boolean;
+  messagesLoading?: boolean;
   sidebarOpen: boolean;
   onSendMessage: (message: string) => void;
   onToggleSidebar: () => void;
@@ -17,6 +18,7 @@ interface ChatAreaProps {
 export default function ChatArea({
   messages,
   isLoading,
+  messagesLoading = false,
   sidebarOpen,
   onSendMessage,
   onToggleSidebar,
@@ -41,12 +43,44 @@ export default function ChatArea({
 
       {/* Messages or Welcome */}
       <div className="flex-1 overflow-y-auto">
-        {!hasMessages ? (
+        {messagesLoading ? (
+          /* Skeleton while conversation loads */
+          <div className="max-w-3xl mx-auto px-6 py-6 pt-15 pb-32 space-y-6 animate-pulse">
+            {/* User message skeleton */}
+            <div className="flex justify-end">
+              <div className="h-10 w-[60%] rounded-2xl bg-[var(--bg-secondary)]" />
+            </div>
+            {/* Assistant message skeleton */}
+            <div className="flex justify-start">
+              <div className="max-w-[85%] space-y-3">
+                <div className="w-7 h-7 rounded-full bg-[var(--bg-secondary)]" />
+                <div className="space-y-2">
+                  <div className="h-4 w-[90%] rounded bg-[var(--bg-secondary)]" />
+                  <div className="h-4 w-[75%] rounded bg-[var(--bg-secondary)]" />
+                  <div className="h-4 w-[60%] rounded bg-[var(--bg-secondary)]" />
+                </div>
+              </div>
+            </div>
+            {/* Another pair */}
+            <div className="flex justify-end">
+              <div className="h-10 w-[45%] rounded-2xl bg-[var(--bg-secondary)]" />
+            </div>
+            <div className="flex justify-start">
+              <div className="max-w-[85%] space-y-3">
+                <div className="w-7 h-7 rounded-full bg-[var(--bg-secondary)]" />
+                <div className="space-y-2">
+                  <div className="h-4 w-[85%] rounded bg-[var(--bg-secondary)]" />
+                  <div className="h-4 w-[70%] rounded bg-[var(--bg-secondary)]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : !hasMessages ? (
           <WelcomeScreen onSendMessage={onSendMessage} />
         ) : (
           <div className="max-w-3xl mx-auto px-6 py-6 space-y-6 pt-15 pb-32">
             {messages.map((msg, i) => (
-              <ChatMessage key={i} message={msg} />
+              <ChatMessage key={i} message={msg} isLast={i === messages.length - 1 && msg.role === "assistant"} />
             ))}
 
             {/* Loading is now handled inside the last ChatMessage */}

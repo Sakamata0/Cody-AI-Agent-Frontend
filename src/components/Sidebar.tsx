@@ -8,6 +8,7 @@ interface SidebarProps {
   conversations: Conversation[];
   activeId: string | null;
   isOpen: boolean;
+  isLoadingConversations?: boolean;
   onToggle: () => void;
   onNewChat: () => void;
   onSelectConversation: (id: string) => void;
@@ -15,6 +16,7 @@ interface SidebarProps {
   onRenameConversation: (id: string, title: string) => void;
   onOpenChats: () => void;
   onOpenSearch: () => void;
+  onLogout?: () => void;
   currentView: "chat" | "chats";
 }
 
@@ -22,6 +24,7 @@ export default function Sidebar({
   conversations,
   activeId,
   isOpen,
+  isLoadingConversations = false,
   onToggle,
   onNewChat,
   onSelectConversation,
@@ -29,6 +32,7 @@ export default function Sidebar({
   onRenameConversation,
   onOpenChats,
   onOpenSearch,
+  onLogout,
   currentView,
 }: SidebarProps) {
   const [showAgentInfo, setShowAgentInfo] = useState(false);
@@ -83,10 +87,10 @@ export default function Sidebar({
         <div className={`flex items-center ${isOpen ? "justify-between px-4" : "justify-center"} py-4`}>
           {isOpen ? (
             <>
-              <div className="flex items-center gap-2">
+              <button onClick={onNewChat} className="flex items-center gap-2 cursor-pointer">
                 <img src="/cody.png" alt="Cody" className="w-7 h-7 rounded-md" />
                 <span className="font-semibold text-[var(--text-primary)] text-[15px]">Cody</span>
-              </div>
+              </button>
               <div className="flex items-center gap-1">
                 <button
                   onClick={onOpenSearch}
@@ -206,7 +210,16 @@ export default function Sidebar({
           </div>
 
           <div className="px-2 space-y-0.5">
-            {groupBy === "none" ? (
+            {isLoadingConversations ? (
+              /* Skeleton loading */
+              <div className="space-y-1 animate-pulse">
+                {[75, 60, 85, 70, 90, 65].map((w, i) => (
+                  <div key={i} className="flex items-center px-3 py-2">
+                    <div className="h-4 rounded bg-[var(--bg-tertiary)]" style={{ width: `${w}%` }} />
+                  </div>
+                ))}
+              </div>
+            ) : groupBy === "none" ? (
               // Flat list
               displayConversations.map((conv) => (
                 <RecentItem
@@ -233,7 +246,7 @@ export default function Sidebar({
                 <GroupLabel label="Older" convos={grouped.older} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
               </>
             )}
-            {conversations.length === 0 && (
+            {!isLoadingConversations && conversations.length === 0 && (
               <p className="text-xs text-[var(--text-muted)] px-3 mt-4">No conversations yet</p>
             )}
           </div>
@@ -243,8 +256,8 @@ export default function Sidebar({
         {/* Spacer */}
         {!isOpen && <div className="flex-1" />}
 
-        {/* Bottom: Agent Info */}
-        <div className={`${isOpen ? "px-3" : "px-1"} py-3`}>
+        {/* Bottom: Agent Info + Logout */}
+        <div className={`${isOpen ? "px-3" : "px-1"} py-3 space-y-1`}>
           <button
             onClick={() => setShowAgentInfo(true)}
             className={`w-full flex items-center ${isOpen ? "gap-2.5 px-3" : "justify-center"} py-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] text-sm transition-colors`}
@@ -254,6 +267,21 @@ export default function Sidebar({
             </svg>
             {isOpen && "Agent Info"}
           </button>
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className={`w-full flex items-center ${isOpen ? "gap-2.5 px-3" : "justify-center"} py-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-red-400 text-sm transition-colors`}
+              aria-label="Logout"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              {isOpen && "Logout"}
+            </button>
+          )}
         </div>
       </aside>
 

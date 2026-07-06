@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ChatInput from "./ChatInput";
+import CodyAvatar from "./CodyAvatar";
 import { PredictIcon, AnalyzeIcon, ConvertIcon, SearchIcon, WeatherIcon } from "./icons/ToolIcons";
 
 interface WelcomeScreenProps {
@@ -96,7 +97,7 @@ export default function WelcomeScreen({ onSendMessage }: WelcomeScreenProps) {
       <div className="max-w-2xl w-full space-y-6">
         {/* Greeting */}
         <div className="text-center space-y-2 mb-8">
-          <img src="/cody.png" alt="Cody" className="w-12 h-12 rounded-2xl mx-auto mb-3" />
+          <CodyAvatar className="w-12 h-12 mx-auto mb-3" animate={true} />
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
             {getGreeting()}
           </h1>

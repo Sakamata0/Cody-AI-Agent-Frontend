@@ -4,9 +4,11 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Message, Step } from "@/lib/types";
+import CodyAvatar from "./CodyAvatar";
 
 interface ChatMessageProps {
   message: Message;
+  isLast?: boolean;
 }
 
 const TOOL_LABELS: Record<string, { label: string; icon: string }> = {
@@ -18,7 +20,7 @@ const TOOL_LABELS: Record<string, { label: string; icon: string }> = {
   disaster_predictor_tool: { label: "Analyzed disaster risk", icon: "🌪️" },
 };
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export default function ChatMessage({ message, isLast = false }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   const actionSteps = message.steps?.filter((s) => s.type === "action") || [];
@@ -34,8 +36,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         </div>
       ) : (
         <div className="max-w-[85%] space-y-3">
-          {/* Avatar */}
-          <img src="/cody.png" alt="Cody" className="w-7 h-7 rounded-full" />
+          {/* Avatar — animates only on the last message */}
+          <CodyAvatar className="w-7 h-7" animate={isLast} />
 
           {/* Reasoning Timeline (shown above the answer) */}
           {hasSteps && (

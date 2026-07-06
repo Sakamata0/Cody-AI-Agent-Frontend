@@ -11,10 +11,13 @@ interface AgentInfoModalProps {
 export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [tools, setTools] = useState<ToolInfo[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.health().then(setHealth).catch(console.error);
-    api.tools().then(setTools).catch(console.error);
+    Promise.all([
+      api.health().then(setHealth).catch(console.error),
+      api.tools().then(setTools).catch(console.error),
+    ]).finally(() => setLoading(false));
   }, []);
 
   return (
@@ -43,48 +46,73 @@ export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
           </div>
         </div>
 
-        {/* Info */}
-        {health && (
-          <div className="space-y-3 mb-5">
-            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-              <span className="text-sm text-[var(--text-secondary)]">Status</span>
-              <span className="text-sm font-medium text-green-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                {health.status}
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-              <span className="text-sm text-[var(--text-secondary)]">Model</span>
-              <span className="text-sm font-mono text-[var(--text-primary)]">Claude Haiku 4.5</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-              <span className="text-sm text-[var(--text-secondary)]">Region</span>
-              <span className="text-sm font-mono text-[var(--text-primary)]">{health.region}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-              <span className="text-sm text-[var(--text-secondary)]">Tools</span>
-              <span className="text-sm font-medium text-[var(--text-primary)]">{health.tools} available</span>
+        {loading ? (
+          /* Skeleton Loading */
+          <div className="space-y-3 mb-5 animate-pulse">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                <div className="h-4 w-20 rounded bg-[var(--bg-tertiary)]" />
+                <div className="h-4 w-28 rounded bg-[var(--bg-tertiary)]" />
+              </div>
+            ))}
+            <div className="mt-5">
+              <div className="h-4 w-28 rounded bg-[var(--bg-tertiary)] mb-3" />
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-2 py-1.5">
+                    <div className="h-5 w-24 rounded bg-[var(--bg-tertiary)]" />
+                    <div className="h-4 flex-1 rounded bg-[var(--bg-tertiary)]" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Tools list */}
-        {tools.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Available Tools</h3>
-            <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-              {tools.map((tool) => (
-                <div key={tool.name} className="flex items-start gap-2 py-1.5">
-                  <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--bg-tertiary)] text-[var(--accent)] shrink-0">
-                    {tool.name}
-                  </span>
-                  <span className="text-xs text-[var(--text-muted)] line-clamp-1">
-                    {tool.description}
+        ) : (
+          <>
+            {/* Info */}
+            {health && (
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                  <span className="text-sm text-[var(--text-secondary)]">Status</span>
+                  <span className="text-sm font-medium text-green-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                    {health.status}
                   </span>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                  <span className="text-sm text-[var(--text-secondary)]">Model</span>
+                  <span className="text-sm font-mono text-[var(--text-primary)]">Claude Haiku 4.5</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                  <span className="text-sm text-[var(--text-secondary)]">Region</span>
+                  <span className="text-sm font-mono text-[var(--text-primary)]">{health.region}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
+                  <span className="text-sm text-[var(--text-secondary)]">Tools</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{health.tools} available</span>
+                </div>
+              </div>
+            )}
+
+            {/* Tools list */}
+            {tools.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Available Tools</h3>
+                <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                  {tools.map((tool) => (
+                    <div key={tool.name} className="flex items-start gap-2 py-1.5">
+                      <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--bg-tertiary)] text-[var(--accent)] shrink-0">
+                        {tool.name}
+                      </span>
+                      <span className="text-xs text-[var(--text-muted)] line-clamp-1">
+                        {tool.description}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Footer */}

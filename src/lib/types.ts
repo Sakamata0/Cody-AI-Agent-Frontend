@@ -45,3 +45,35 @@ export interface ToolInfo {
   name: string;
   description: string;
 }
+
+// --- Auth Types ---
+
+export interface User {
+  user_id: string;
+  email: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  id_token: string;
+  refresh_token?: string;
+  user: User;
+}
+
+export interface RegisterResponse {
+  message: string;
+}
+
+// --- Settings Types ---
+
+export interface UserSettings {
+  display_name: string;
+  theme: "light" | "dark";
+  language: "en" | "fr" | "ar";
+}
+
+export interface UserSettingsUpdate {
+  display_name?: string;
+  theme?: "light" | "dark";
+  language?: "en" | "fr" | "ar";
+}
