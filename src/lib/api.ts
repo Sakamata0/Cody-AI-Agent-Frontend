@@ -10,7 +10,7 @@ import {
   UserSettingsUpdate,
 } from "./types";
 
-const BASE_URL = "http://16.16.210.236:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // --- Token Helpers ---
 
@@ -140,7 +140,16 @@ async function requestPublic<T>(endpoint: string, options?: RequestInit): Promis
   });
 
   if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
+    let message = `Error: ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body.detail) {
+        message = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
+      }
+    } catch {
+      // couldn't parse JSON, use default
+    }
+    throw new Error(message);
   }
 
   return res.json();

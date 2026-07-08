@@ -8,7 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Sidebar from "./Sidebar";
 import SearchModal from "./SearchModal";
 
-const AUTH_ROUTES = ["/login", "/register", "/verify"];
+const AUTH_ROUTES = ["/login", "/register", "/verify", "/auth/callback", "/login/password"];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();

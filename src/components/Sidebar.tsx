@@ -89,7 +89,7 @@ export default function Sidebar({
             <>
               <button onClick={onNewChat} className="flex items-center gap-2 cursor-pointer">
                 <img src="/cody.png" alt="Cody" className="w-7 h-7 rounded-md" />
-                <span className="font-semibold text-[var(--text-primary)] text-[15px]">Cody</span>
+                <span className="font-semibold text-[var(--text-primary)] text-[15px]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Cody</span>
               </button>
               <div className="flex items-center gap-1">
                 <button
