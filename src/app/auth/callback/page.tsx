@@ -28,7 +28,7 @@ function CallbackHandler() {
     async function exchangeCode() {
       try {
         const redirectUri = window.location.origin + "/auth/callback";
-        const BASE_URL = "http://localhost:8000";
+        const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
         const res = await fetch(`${BASE_URL}/auth/oauth/token`, {
           method: "POST",

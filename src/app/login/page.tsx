@@ -4,8 +4,8 @@ import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
-const COGNITO_DOMAIN = "https://eu-north-1ipa8bcttq.auth.eu-north-1.amazoncognito.com";
-const CLIENT_ID = "7h2bhhvhdmls8c6jm515454kuj";
+const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || "";
+const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "";
 
 type Step = "email" | "code";
 
