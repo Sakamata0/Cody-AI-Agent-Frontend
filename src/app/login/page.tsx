@@ -121,9 +121,9 @@ export default function LoginPage() {
       </nav>
 
       {/* Main content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex items-center justify-center gap-50 px-8">
         {/* Left side */}
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
+        <div className="flex flex-col items-center justify-center">
           {step === "email" ? (
             <>
               {/* Hero tagline */}
@@ -228,25 +228,16 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Right side — Image/Video placeholder */}
-        <div className="hidden lg:flex flex-1 items-center justify-center p-8">
-          <div className="w-full max-w-lg aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--bg-secondary)] flex items-center justify-center">
-            {/* Replace this with your Runway video once ready */}
+        {/* Right side — Video */}
+        <div className="hidden lg:block">
+          <div className="w-full max-w-sm h-[80vh] rounded-2xl overflow-hidden bg-[var(--bg-secondary)]">
             <video
-              src="/promo.mp4"
+              src="/commercial.mp4"
               autoPlay
               loop
               muted
               playsInline
               className="w-full h-full object-cover"
-              onError={(e) => {
-                // Fallback to image if video doesn't exist
-                const target = e.target as HTMLVideoElement;
-                target.style.display = "none";
-                target.parentElement!.innerHTML = `
-                  <img src="/cody.png" alt="Cody" class="w-32 h-32 rounded-2xl opacity-20" />
-                `;
-              }}
             />
           </div>
         </div>
