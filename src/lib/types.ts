@@ -68,12 +68,22 @@ export interface RegisterResponse {
 
 export interface UserSettings {
   display_name: string;
+  avatar_index: number | null;
   theme: "light" | "dark";
   language: "en" | "fr" | "ar";
 }
 
 export interface UserSettingsUpdate {
   display_name?: string;
+  avatar_index?: number | null;
   theme?: "light" | "dark";
   language?: "en" | "fr" | "ar";
+}
+
+// --- Usage / Limits Types ---
+
+export interface WeeklyUsage {
+  messages_used: number;
+  messages_limit: number;
+  resets_at: string;
 }

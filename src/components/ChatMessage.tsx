@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Message, Step } from "@/lib/types";
@@ -9,6 +9,7 @@ import CodyAvatar from "./CodyAvatar";
 interface ChatMessageProps {
   message: Message;
   isLast?: boolean;
+  isLive?: boolean;
 }
 
 const TOOL_LABELS: Record<string, { label: string; icon: string }> = {
@@ -20,7 +21,7 @@ const TOOL_LABELS: Record<string, { label: string; icon: string }> = {
   disaster_predictor_tool: { label: "Analyzed disaster risk", icon: "🌪️" },
 };
 
-export default function ChatMessage({ message, isLast = false }: ChatMessageProps) {
+export default function ChatMessage({ message, isLast = false, isLive = false }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   const actionSteps = message.steps?.filter((s) => s.type === "action") || [];
@@ -48,7 +49,11 @@ export default function ChatMessage({ message, isLast = false }: ChatMessageProp
           {message.content ? (
             <div className="text-sm leading-relaxed text-[var(--text-primary)]">
               <div className="markdown-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                {isLast && isLive ? (
+                  <TypewriterMarkdown content={message.content} />
+                ) : (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                )}
               </div>
             </div>
           ) : (
@@ -69,6 +74,50 @@ export default function ChatMessage({ message, isLast = false }: ChatMessageProp
       )}
     </div>
   );
+}
+
+function TypewriterMarkdown({ content }: { content: string }) {
+  const [displayedLength, setDisplayedLength] = useState(0);
+  const [done, setDone] = useState(false);
+  const prevContentRef = useRef("");
+
+  // When content changes from what we had, start the animation
+  useEffect(() => {
+    if (content && content !== prevContentRef.current) {
+      // New content arrived — reset and animate
+      prevContentRef.current = content;
+      setDisplayedLength(0);
+      setDone(false);
+    }
+  }, [content]);
+
+  useEffect(() => {
+    if (done || !content || displayedLength >= content.length) return;
+
+    const charsPerTick = 8;
+    const interval = 16;
+
+    const timer = setInterval(() => {
+      setDisplayedLength((prev) => {
+        const next = prev + charsPerTick;
+        if (next >= content.length) {
+          setDone(true);
+          clearInterval(timer);
+          return content.length;
+        }
+        return next;
+      });
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [content, done, displayedLength]);
+
+  if (done) {
+    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+  }
+
+  const partial = content.slice(0, displayedLength);
+  return <ReactMarkdown remarkPlugins={[remarkGfm]}>{partial || " "}</ReactMarkdown>;
 }
 
 function ReasoningTimeline({ steps, hasContent }: { steps: Step[]; hasContent: boolean }) {

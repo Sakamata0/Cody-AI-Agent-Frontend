@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Conversation } from "@/lib/types";
+import { useSettings } from "@/lib/SettingsContext";
+import { useAuth } from "@/lib/AuthContext";
+import { AVATAR_DESIGNS, AvatarIcon, getInitials } from "@/lib/avatars";
 import AgentInfoModal from "./AgentInfoModal";
+import SettingsModal from "./SettingsModal";
+import UsageModal from "./UsageModal";
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -35,12 +40,48 @@ export default function Sidebar({
   onLogout,
   currentView,
 }: SidebarProps) {
+  const { settings } = useSettings();
+  const { user } = useAuth();
   const [showAgentInfo, setShowAgentInfo] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showUsage, setShowUsage] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showGroupBy, setShowGroupBy] = useState(false);
+  const [contentVisible, setContentVisible] = useState(isOpen);
   const [groupBy, setGroupBy] = useState<"none" | "date">("none");
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    }
+    if (showUserMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showUserMenu]);
+
+  // Close user menu when sidebar toggles
+  useEffect(() => {
+    setShowUserMenu(false);
+    if (isOpen) {
+      // Delay content until sidebar expand transition finishes (300ms)
+      const timer = setTimeout(() => setContentVisible(true), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setContentVisible(false);
+    }
+  }, [isOpen]);
+
+  const displayName = settings?.display_name || user?.email?.split("@")[0] || "User";
+  const initials = getInitials(displayName);
+  const avatarDesign = settings?.avatar_index != null ? AVATAR_DESIGNS[settings.avatar_index] : null;
 
   function handleRenameSubmit(id: string) {
     if (renameValue.trim()) {
@@ -164,8 +205,8 @@ export default function Sidebar({
           )}
         </nav>
 
-        {/* Recents - only when expanded */}
-        {isOpen && (
+        {/* Recents - only when expanded and transition complete */}
+        {contentVisible ? (
         <div className="flex-1 overflow-y-auto mt-4">
           <div className="px-4 flex items-center justify-between mb-2 relative">
             <span className="text-xs text-[var(--text-muted)] font-medium">Recents</span>
@@ -251,41 +292,119 @@ export default function Sidebar({
             )}
           </div>
         </div>
+        ) : (
+          <div className="flex-1" />
         )}
 
-        {/* Spacer */}
-        {!isOpen && <div className="flex-1" />}
+        {/* Bottom: User Profile Pill */}
+        <div className={`${isOpen ? "px-3" : "px-1"} py-3 overflow-hidden`} ref={userMenuRef}>
+          <div className="relative">
+            {/* User Menu Popup */}
+            {showUserMenu && isOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-50 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl shadow-xl py-1.5 min-w-[200px]">
+                {/* Email header */}
+                <div className="px-4 py-2 border-b border-[var(--border)]">
+                  <p className="text-xs text-[var(--text-muted)] truncate">{user?.email || ""}</p>
+                </div>
 
-        {/* Bottom: Agent Info + Logout */}
-        <div className={`${isOpen ? "px-3" : "px-1"} py-3 space-y-1`}>
-          <button
-            onClick={() => setShowAgentInfo(true)}
-            className={`w-full flex items-center ${isOpen ? "gap-2.5 px-3" : "justify-center"} py-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] text-sm transition-colors`}
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a7 7 0 100 14 7 7 0 000-14zm-9 7a9 9 0 1118 0 9 9 0 01-18 0zm8-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm.01 8a1 1 0 102 0V9a1 1 0 10-2 0v5z" />
-            </svg>
-            {isOpen && "Agent Info"}
-          </button>
+                {/* Menu items */}
+                <div className="py-1">
+                  <button
+                    onClick={() => { setShowSettings(true); setShowUserMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Settings
+                  </button>
 
-          {onLogout && (
+                  <button
+                    onClick={() => { setShowUsage(true); setShowUserMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M12 20V10" />
+                      <path d="M18 20V4" />
+                      <path d="M6 20v-4" />
+                    </svg>
+                    Weekly limit
+                  </button>
+
+                  <button
+                    onClick={() => { setShowAgentInfo(true); setShowUserMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                    Agent info
+                  </button>
+                </div>
+
+                {/* Logout */}
+                <div className="border-t border-[var(--border)] pt-1">
+                  <button
+                    onClick={() => { onLogout?.(); setShowUserMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-[var(--bg-hover)] transition-colors"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Log out
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* User Pill Button */}
             <button
-              onClick={onLogout}
-              className={`w-full flex items-center ${isOpen ? "gap-2.5 px-3" : "justify-center"} py-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-red-400 text-sm transition-colors`}
-              aria-label="Logout"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className={`w-full flex items-center ${isOpen ? "gap-3 px-3" : "justify-center"} py-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors`}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              {isOpen && "Logout"}
+              {/* Avatar */}
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: avatarDesign?.bg || "var(--accent)" }}
+              >
+                {avatarDesign ? (
+                  <AvatarIcon icon={avatarDesign.icon} size={14} />
+                ) : (
+                  <span className="text-xs font-medium text-white">{initials}</span>
+                )}
+              </div>
+
+              {isOpen && contentVisible && (
+                <>
+                  <span className="flex-1 text-sm text-[var(--text-primary)] text-left truncate">
+                    {displayName}
+                  </span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`text-[var(--text-muted)] transition-transform ${showUserMenu ? "rotate-180" : ""}`}
+                  >
+                    <path d="M7 10l5 5 5-5" />
+                  </svg>
+                </>
+              )}
             </button>
-          )}
+          </div>
         </div>
       </aside>
 
       {showAgentInfo && <AgentInfoModal onClose={() => setShowAgentInfo(false)} />}
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showUsage && <UsageModal onClose={() => setShowUsage(false)} />}
       {(showGroupBy || menuOpenId) && (
         <div className="fixed inset-0 z-30" onClick={() => { setShowGroupBy(false); setMenuOpenId(null); }} />
       )}

@@ -24,6 +24,22 @@ export default function ChatArea({
   onToggleSidebar,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Track if we've been in a live streaming session (not loading from history)
+  const wasStreamingRef = useRef(false);
+
+  // When isLoading becomes true, mark that we're in a live stream
+  useEffect(() => {
+    if (isLoading) {
+      wasStreamingRef.current = true;
+    }
+  }, [isLoading]);
+
+  // Reset when conversation changes (messagesLoading = loading from history)
+  useEffect(() => {
+    if (messagesLoading) {
+      wasStreamingRef.current = false;
+    }
+  }, [messagesLoading]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -80,7 +96,12 @@ export default function ChatArea({
         ) : (
           <div className="max-w-3xl mx-auto px-6 py-6 space-y-6 pt-15 pb-32">
             {messages.map((msg, i) => (
-              <ChatMessage key={i} message={msg} isLast={i === messages.length - 1 && msg.role === "assistant"} />
+              <ChatMessage
+                key={i}
+                message={msg}
+                isLast={i === messages.length - 1 && msg.role === "assistant"}
+                isLive={i === messages.length - 1 && msg.role === "assistant" && wasStreamingRef.current}
+              />
             ))}
 
             {/* Loading is now handled inside the last ChatMessage */}
