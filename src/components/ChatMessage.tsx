@@ -6,6 +6,12 @@ import remarkGfm from "remark-gfm";
 import { Message, Step } from "@/lib/types";
 import CodyAvatar from "./CodyAvatar";
 
+// Custom event to open modals from anywhere
+export const openUsageModal = () => window.dispatchEvent(new CustomEvent("open-usage-modal"));
+export const openContactSupport = () => {
+  window.location.href = "mailto:support@smartovate.com?subject=Usage%20Limit%20Extension%20Request";
+};
+
 interface ChatMessageProps {
   message: Message;
   isLast?: boolean;
@@ -23,6 +29,7 @@ const TOOL_LABELS: Record<string, { label: string; icon: string }> = {
 
 export default function ChatMessage({ message, isLast = false, isLive = false }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const isRateLimited = message.content?.includes("__RATE_LIMITED__");
 
   const actionSteps = message.steps?.filter((s) => s.type === "action") || [];
   const hasSteps = actionSteps.length > 0;
@@ -37,8 +44,8 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
         </div>
       ) : (
         <div className="max-w-[85%] space-y-3">
-          {/* Avatar — animates only on the last message */}
-          <CodyAvatar className="w-7 h-7" animate={isLast} />
+          {/* Avatar — pulses only while thinking (no content yet) */}
+          <CodyAvatar className="w-7 h-7" animate={isLast && !message.content} />
 
           {/* Reasoning Timeline (shown above the answer) */}
           {hasSteps && (
@@ -46,21 +53,19 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
           )}
 
           {/* Final answer (or typing indicator if still loading) */}
-          {message.content ? (
+          {message.content && (
             <div className="text-sm leading-relaxed text-[var(--text-primary)]">
-              <div className="markdown-content">
-                {isLast && isLive ? (
-                  <TypewriterMarkdown content={message.content} />
-                ) : (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 py-2">
-              <span className="typing-dot w-2 h-2 rounded-full bg-[var(--text-muted)]"></span>
-              <span className="typing-dot w-2 h-2 rounded-full bg-[var(--text-muted)]"></span>
-              <span className="typing-dot w-2 h-2 rounded-full bg-[var(--text-muted)]"></span>
+              {isRateLimited ? (
+                <RateLimitMessage />
+              ) : (
+                <div className="markdown-content">
+                  {isLast && isLive ? (
+                    <TypewriterMarkdown content={message.content} />
+                  ) : (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -72,6 +77,32 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function RateLimitMessage() {
+  return (
+    <div className="space-y-2">
+      <p className="text-[var(--text-secondary)]">
+        You&apos;ve reached your{" "}
+        <button
+          onClick={openUsageModal}
+          className="text-[var(--accent)] hover:underline cursor-pointer font-medium"
+        >
+          weekly message limit
+        </button>
+        .
+      </p>
+      <p className="text-[var(--text-muted)] text-xs">
+        <button
+          onClick={openContactSupport}
+          className="text-[var(--accent)] hover:underline cursor-pointer"
+        >
+          Contact support
+        </button>
+        {" "}to extend your limit.
+      </p>
     </div>
   );
 }

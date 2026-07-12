@@ -79,6 +79,13 @@ export default function Sidebar({
     }
   }, [isOpen]);
 
+  // Listen for custom event to open usage modal from anywhere
+  useEffect(() => {
+    function handleOpenUsage() { setShowUsage(true); }
+    window.addEventListener("open-usage-modal", handleOpenUsage);
+    return () => window.removeEventListener("open-usage-modal", handleOpenUsage);
+  }, []);
+
   const displayName = settings?.display_name || user?.email?.split("@")[0] || "User";
   const initials = getInitials(displayName);
   const avatarDesign = settings?.avatar_index != null ? AVATAR_DESIGNS[settings.avatar_index] : null;
@@ -120,8 +127,8 @@ export default function Sidebar({
           fixed top-0 left-0 z-40 h-full
           bg-[var(--bg-secondary)]
           flex flex-col transition-all duration-300 ease-in-out
-          overflow-hidden whitespace-nowrap
-          ${isOpen ? "w-[260px]" : "w-[48px]"}
+          whitespace-nowrap
+          ${isOpen ? "w-[260px]" : "w-[48px] overflow-hidden"}
         `}
       >
         {/* Top: Logo + Search + Collapse */}
@@ -297,7 +304,7 @@ export default function Sidebar({
         )}
 
         {/* Bottom: User Profile Pill */}
-        <div className={`${isOpen ? "px-3" : "px-1"} py-3 overflow-hidden`} ref={userMenuRef}>
+        <div className={`${isOpen ? "px-3" : "px-1"} py-3`} ref={userMenuRef}>
           <div className="relative">
             {/* User Menu Popup */}
             {showUserMenu && isOpen && (
@@ -337,9 +344,9 @@ export default function Sidebar({
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 16v-4" />
-                      <path d="M12 8h.01" />
+                      <rect x="3" y="3" width="18" height="18" rx="5" />
+                      <circle cx="9" cy="11" r="1.5" fill="currentColor" stroke="none" />
+                      <circle cx="15" cy="11" r="1.5" fill="currentColor" stroke="none" />
                     </svg>
                     Agent info
                   </button>

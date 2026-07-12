@@ -205,3 +205,17 @@ body {
 .animate-fade-out-toast {
   animation: toastFadeOut 0.25s ease-in forwards;
 }
+
+/* Cody thinking aura pulse */
+@keyframes codyPulse {
+  0%, 100% {
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 14px 5px rgba(255, 255, 255, 0.45);
+  }
+}
+
+.animate-cody-pulse {
+  animation: codyPulse 1.8s ease-in-out infinite;
+}

@@ -41,7 +41,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const loadConversations = useCallback(async () => {
     try {
-      setConversationsLoading(true);
+      // Only show loading skeleton on initial load, not on refresh
+      if (conversations.length === 0) {
+        setConversationsLoading(true);
+      }
       const convos = await api.getConversations();
       setConversations(convos);
     } catch (err) {
@@ -49,7 +52,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     } finally {
       setConversationsLoading(false);
     }
-  }, []);
+  }, [conversations.length]);
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
@@ -127,13 +130,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         loadConversations();
       },
       (error) => {
+        const isRateLimited = error.includes("429");
         setMessages((prev) => {
           const updated = prev.slice(0, -1);
           const last = prev[prev.length - 1];
-          return [...updated, { ...last, content: "Sorry, something went wrong. Please try again." }];
+          const errorMessage = isRateLimited
+            ? "__RATE_LIMITED__"
+            : "Sorry, something went wrong. Please try again.";
+          return [...updated, { ...last, content: errorMessage }];
         });
         setIsLoading(false);
-        console.error("Stream error:", error);
       },
     );
   }

@@ -13,16 +13,14 @@ export default function CodyAvatar({ className = "w-12 h-12", animate = false }:
   useEffect(() => {
     if (!animate) return;
 
-    // Blink every 3-4 seconds (randomized for natural feel)
     function scheduleBlink() {
-      const delay = 3000 + Math.random() * 2000; // 3-5 seconds
+      const delay = 3000 + Math.random() * 2000;
       return setTimeout(() => {
         setBlinking(true);
-        // Blink duration: 500ms
         setTimeout(() => {
           setBlinking(false);
           timerRef = scheduleBlink();
-        }, 500);
+        }, 400);
       }, delay);
     }
 
@@ -31,10 +29,17 @@ export default function CodyAvatar({ className = "w-12 h-12", animate = false }:
   }, [animate]);
 
   return (
-    <img
-      src={blinking ? "/cody-blink.png" : "/cody.png"}
-      alt="Cody"
-      className={`${className} rounded-2xl`}
-    />
+    <div className={`relative ${className}`}>
+      {/* Pulsing aura — only when thinking */}
+      {animate && (
+        <div className="absolute inset-[15%] animate-cody-pulse rounded-[22%]" />
+      )}
+      {/* Avatar image */}
+      <img
+        src={blinking ? "/cody-blink.png" : "/cody.png"}
+        alt="Cody"
+        className="w-full h-full relative z-[1]"
+      />
+    </div>
   );
 }
