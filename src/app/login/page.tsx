@@ -97,10 +97,7 @@ export default function LoginPage() {
   function handleGoogleLogin() {
     const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
     const url = `${COGNITO_DOMAIN}/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&identity_provider=Google&scope=openid+email+profile`;
-    console.log("[OAuth] Redirect URL:", url);
-    console.log("[OAuth] Origin:", window.location.origin);
-    console.log("[OAuth] COGNITO_DOMAIN:", COGNITO_DOMAIN);
-    console.log("[OAuth] CLIENT_ID:", CLIENT_ID);
+    alert(url);
     window.location.href = url;
   }
 
