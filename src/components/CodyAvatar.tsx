@@ -5,9 +5,10 @@ import { useState, useEffect } from "react";
 interface CodyAvatarProps {
   className?: string;
   animate?: boolean;
+  showAura?: boolean;
 }
 
-export default function CodyAvatar({ className = "w-12 h-12", animate = false }: CodyAvatarProps) {
+export default function CodyAvatar({ className = "w-12 h-12", animate = false, showAura = false }: CodyAvatarProps) {
   const [blinking, setBlinking] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function CodyAvatar({ className = "w-12 h-12", animate = false }:
   return (
     <div className={`relative ${className}`}>
       {/* Pulsing aura — only when thinking */}
-      {animate && (
+      {showAura && (
         <div className="absolute inset-[15%] animate-cody-pulse rounded-[22%]" />
       )}
       {/* Avatar image */}

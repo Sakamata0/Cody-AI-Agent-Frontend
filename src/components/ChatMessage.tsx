@@ -45,7 +45,7 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
       ) : (
         <div className="max-w-[85%] space-y-3">
           {/* Avatar — pulses only while thinking (no content yet) */}
-          <CodyAvatar className="w-7 h-7" animate={isLast && !message.content} />
+          <CodyAvatar className="w-7 h-7" animate={isLast && !message.content} showAura={isLast && !message.content} />
 
           {/* Reasoning Timeline (shown above the answer) */}
           {hasSteps && (
