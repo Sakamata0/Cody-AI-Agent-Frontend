@@ -5,6 +5,7 @@ import { UserSettings, UserSettingsUpdate } from "./types";
 import { api } from "./api";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
+import { t, Locale } from "./i18n";
 
 interface SettingsContextType {
   settings: UserSettings | null;
@@ -49,14 +50,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     // Fire and forget — persist in background
     api.updateSettings(changes)
       .then(() => {
-        toast("Settings saved", "success");
+        const locale = (changes.language || settings?.language || "en") as Locale;
+        toast(t("toast.settingsSaved", locale), "success");
       })
       .catch(() => {
-        toast("Failed to save settings", "error");
+        const locale = (settings?.language || "en") as Locale;
+        toast(t("toast.settingsFailed", locale), "error");
         // Revert to actual server state
         reload();
       });
-  }, [reload, toast]);
+  }, [reload, toast, settings]);
 
   useEffect(() => {
     if (isAuthenticated && !authLoading) {

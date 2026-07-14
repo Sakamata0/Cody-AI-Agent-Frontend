@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Conversation } from "@/lib/types";
+import { useTranslation } from "@/lib/useTranslation";
 
 interface SearchModalProps {
   conversations: Conversation[];
@@ -12,6 +13,7 @@ interface SearchModalProps {
 export default function SearchModal({ conversations, onSelect, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -35,8 +37,8 @@ export default function SearchModal({ conversations, onSelect, onClose }: Search
     const date = new Date(dateStr);
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diff < 30) return "Past month";
-    return "Past year";
+    if (diff < 30) return t("search.pastMonth");
+    return t("search.pastYear");
   }
 
   return (
@@ -55,7 +57,7 @@ export default function SearchModal({ conversations, onSelect, onClose }: Search
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search chats..."
+            placeholder={t("search.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm outline-none"
@@ -74,7 +76,7 @@ export default function SearchModal({ conversations, onSelect, onClose }: Search
         <div className="max-h-[400px] overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="text-center text-[var(--text-muted)] text-sm py-8">
-              {query ? "No matching chats" : "No conversations"}
+              {query ? t("search.noMatchingChats") : t("search.noConversations")}
             </p>
           ) : (
             <div className="py-1">

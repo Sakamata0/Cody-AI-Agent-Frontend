@@ -6,6 +6,7 @@ import { Conversation, Message, Step } from "./types";
 import { api } from "./api";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
+import { useTranslation } from "./useTranslation";
 
 interface ChatContextType {
   conversations: Conversation[];
@@ -32,6 +33,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -73,7 +75,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // Conversation not found or server error — redirect to home
       setActiveConversationId(null);
       setMessages([]);
-      toast("Conversation not found", "error");
+      toast(t("toast.conversationNotFound"), "error");
       router.push("/");
     } finally {
       setMessagesLoading(false);

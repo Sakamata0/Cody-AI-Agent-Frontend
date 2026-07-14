@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { HealthResponse, ToolInfo } from "@/lib/types";
+import { useTranslation } from "@/lib/useTranslation";
 
 interface AgentInfoModalProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [tools, setTools] = useState<ToolInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     Promise.all([
@@ -42,7 +44,7 @@ export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
           <img src="/cody.png" alt="Cody" className="w-10 h-10 rounded-lg" />
           <div>
             <h2 className="text-lg font-semibold text-[var(--text-primary)]">Cody</h2>
-            <p className="text-sm text-[var(--text-secondary)]">SMARTOVATE AI Agent</p>
+            <p className="text-sm text-[var(--text-secondary)]">{t("agent.title")}</p>
           </div>
         </div>
 
@@ -73,23 +75,23 @@ export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
             {health && (
               <div className="space-y-3 mb-5">
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Status</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("agent.status")}</span>
                   <span className="text-sm font-medium text-green-400 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-green-400"></span>
                     {health.status}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Model</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("agent.model")}</span>
                   <span className="text-sm font-mono text-[var(--text-primary)]">Claude Haiku 4.5</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Region</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("agent.region")}</span>
                   <span className="text-sm font-mono text-[var(--text-primary)]">{health.region}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-[var(--border)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Tools</span>
-                  <span className="text-sm font-medium text-[var(--text-primary)]">{health.tools} available</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("agent.tools")}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{health.tools} {t("agent.available")}</span>
                 </div>
               </div>
             )}
@@ -97,7 +99,7 @@ export default function AgentInfoModal({ onClose }: AgentInfoModalProps) {
             {/* Tools list */}
             {tools.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Available Tools</h3>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">{t("agent.availableTools")}</h3>
                 <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                   {tools.map((tool) => (
                     <div key={tool.name} className="flex items-start gap-2 py-1.5">

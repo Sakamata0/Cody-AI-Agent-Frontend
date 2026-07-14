@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ChatInput from "./ChatInput";
 import CodyAvatar from "./CodyAvatar";
+import { useTranslation } from "@/lib/useTranslation";
 import { PredictIcon, AnalyzeIcon, ConvertIcon, SearchIcon, WeatherIcon } from "./icons/ToolIcons";
 
 interface WelcomeScreenProps {
@@ -71,12 +72,13 @@ const SUGGESTIONS: SuggestionCategory[] = [
 export default function WelcomeScreen({ onSendMessage }: WelcomeScreenProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [hoveredPrompt, setHoveredPrompt] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   function getGreeting() {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return t("welcome.morning");
+    if (hour < 18) return t("welcome.afternoon");
+    return t("welcome.evening");
   }
 
   function handleCategoryClick(label: string) {
@@ -102,7 +104,7 @@ export default function WelcomeScreen({ onSendMessage }: WelcomeScreenProps) {
             {getGreeting()}
           </h1>
           <p className="text-[var(--text-secondary)]">
-            How can I help you today?
+            {t("welcome.subtitle")}
           </p>
         </div>
 
@@ -110,7 +112,7 @@ export default function WelcomeScreen({ onSendMessage }: WelcomeScreenProps) {
         <ChatInput
           onSend={onSendMessage}
           isLoading={false}
-          placeholder={hoveredPrompt || "Ask Cody anything..."}
+          placeholder={hoveredPrompt || t("welcome.placeholder")}
         />
 
         {/* Suggestion Categories OR expanded menu (same spot) */}

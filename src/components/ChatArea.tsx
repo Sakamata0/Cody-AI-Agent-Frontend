@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Message } from "@/lib/types";
+import { useTranslation } from "@/lib/useTranslation";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import WelcomeScreen from "./WelcomeScreen";
@@ -24,6 +25,7 @@ export default function ChatArea({
   onToggleSidebar,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
   // Track if we've been in a live streaming session (not loading from history)
   const wasStreamingRef = useRef(false);
 
@@ -117,7 +119,7 @@ export default function ChatArea({
           <div className="max-w-3xl mx-auto px-4">
             <ChatInput onSend={onSendMessage} isLoading={isLoading} />
             <p className="text-center text-xs text-[var(--text-muted)] my-2">
-              Cody is AI and can make mistakes. Please double-check important information.
+              {t("chat.disclaimer")}
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import { ChatProvider } from "@/lib/ChatContext";
 import { SettingsProvider } from "@/lib/SettingsContext";
 import { ToastProvider } from "@/lib/ToastContext";
+import HtmlLang from "./HtmlLang";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -15,7 +16,10 @@ export default function Providers({ children }: ProvidersProps) {
     <AuthProvider>
       <ToastProvider>
         <SettingsProvider>
-          <ChatProvider>{children}</ChatProvider>
+          <ChatProvider>
+            <HtmlLang />
+            {children}
+          </ChatProvider>
         </SettingsProvider>
       </ToastProvider>
     </AuthProvider>

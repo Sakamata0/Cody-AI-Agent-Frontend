@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { WeeklyUsage } from "@/lib/types";
+import { useTranslation } from "@/lib/useTranslation";
 
 interface UsageModalProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ export default function UsageModal({ onClose }: UsageModalProps) {
   const [usage, setUsage] = useState<WeeklyUsage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     api.getUsage()
@@ -25,9 +27,8 @@ export default function UsageModal({ onClose }: UsageModalProps) {
   const remaining = messagesLimit - messagesUsed;
   const percentage = Math.min((messagesUsed / messagesLimit) * 100, 100);
 
-  // Format reset date
   const resetsAt = usage?.resets_at
-    ? new Date(usage.resets_at).toLocaleDateString("en-US", {
+    ? new Date(usage.resets_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -54,10 +55,8 @@ export default function UsageModal({ onClose }: UsageModalProps) {
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>
-            <h2 className="text-base font-semibold text-[var(--text-primary)]">Weekly usage</h2>
-            <p className="text-sm text-[var(--text-muted)] mt-1">
-              Your message limit resets every week.
-            </p>
+            <h2 className="text-base font-semibold text-[var(--text-primary)]">{t("usage.title")}</h2>
+            <p className="text-sm text-[var(--text-muted)] mt-1">{t("usage.subtitle")}</p>
           </div>
 
           {loading ? (
@@ -81,7 +80,7 @@ export default function UsageModal({ onClose }: UsageModalProps) {
               {/* Usage bar */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Messages</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("usage.messages")}</span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     {messagesUsed} / {messagesLimit}
                   </span>
@@ -107,30 +106,28 @@ export default function UsageModal({ onClose }: UsageModalProps) {
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
-                  <span>Resets on {resetsAt}</span>
+                  <span>{t("usage.resetsOn")} {resetsAt}</span>
                 </div>
               </div>
 
               {/* Usage breakdown */}
               <div className="border-t border-[var(--border)] pt-4 space-y-3">
-                <h3 className="text-sm font-medium text-[var(--text-primary)]">This week</h3>
+                <h3 className="text-sm font-medium text-[var(--text-primary)]">{t("usage.thisWeek")}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-[var(--bg-tertiary)] rounded-lg p-3">
                     <p className="text-lg font-semibold text-[var(--text-primary)]">{messagesUsed}</p>
-                    <p className="text-xs text-[var(--text-muted)]">Messages sent</p>
+                    <p className="text-xs text-[var(--text-muted)]">{t("usage.messagesSent")}</p>
                   </div>
                   <div className="bg-[var(--bg-tertiary)] rounded-lg p-3">
                     <p className="text-lg font-semibold text-[var(--text-primary)]">{remaining}</p>
-                    <p className="text-xs text-[var(--text-muted)]">Remaining</p>
+                    <p className="text-xs text-[var(--text-muted)]">{t("usage.remaining")}</p>
                   </div>
                 </div>
               </div>
 
               {/* Contact support */}
               <div className="border-t border-[var(--border)] pt-4">
-                <p className="text-sm text-[var(--text-secondary)] mb-3">
-                  Need more messages? Contact support to extend your weekly limit.
-                </p>
+                <p className="text-sm text-[var(--text-secondary)] mb-3">{t("usage.needMore")}</p>
                 <a
                   href="mailto:support@smartovate.com?subject=Usage%20Limit%20Extension%20Request"
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] text-sm font-medium transition-colors"
@@ -139,7 +136,7 @@ export default function UsageModal({ onClose }: UsageModalProps) {
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                     <polyline points="22,6 12,13 2,6" />
                   </svg>
-                  Contact support
+                  {t("usage.contactSupport")}
                 </a>
               </div>
             </>

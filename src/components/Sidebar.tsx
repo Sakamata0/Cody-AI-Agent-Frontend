@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Conversation } from "@/lib/types";
 import { useSettings } from "@/lib/SettingsContext";
 import { useAuth } from "@/lib/AuthContext";
+import { useTranslation } from "@/lib/useTranslation";
 import { AVATAR_DESIGNS, AvatarIcon, getInitials } from "@/lib/avatars";
 import AgentInfoModal from "./AgentInfoModal";
 import SettingsModal from "./SettingsModal";
@@ -42,6 +43,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const { settings } = useSettings();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [showAgentInfo, setShowAgentInfo] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showUsage, setShowUsage] = useState(false);
@@ -182,7 +184,7 @@ export default function Sidebar({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 5v14M5 12h14" />
             </svg>
-            {isOpen && "New chat"}
+            {isOpen && t("sidebar.newChat")}
           </button>
 
           <button
@@ -196,7 +198,7 @@ export default function Sidebar({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
             </svg>
-            {isOpen && "Chats"}
+            {isOpen && t("sidebar.chats")}
           </button>
 
           {!isOpen && (
@@ -216,7 +218,7 @@ export default function Sidebar({
         {contentVisible ? (
         <div className="flex-1 overflow-y-auto mt-4">
           <div className="px-4 flex items-center justify-between mb-2 relative">
-            <span className="text-xs text-[var(--text-muted)] font-medium">Recents</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">{t("sidebar.recents")}</span>
             {/* Group by button */}
             <button
               onClick={() => setShowGroupBy(!showGroupBy)}
@@ -230,12 +232,12 @@ export default function Sidebar({
             {/* Group by dropdown */}
             {showGroupBy && (
               <div className="absolute right-0 top-full mt-1 z-50 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg shadow-xl py-1 min-w-[140px]">
-                <p className="px-3 py-1.5 text-xs text-[var(--text-muted)]">Group by</p>
+                <p className="px-3 py-1.5 text-xs text-[var(--text-muted)]">{t("sidebar.groupBy")}</p>
                 <button
                   onClick={() => { setGroupBy("none"); setShowGroupBy(false); }}
                   className="w-full flex items-center justify-between px-3 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                 >
-                  None
+                  {t("sidebar.groupNone")}
                   {groupBy === "none" && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5">
                       <path d="M20 6L9 17l-5-5" />
@@ -246,7 +248,7 @@ export default function Sidebar({
                   onClick={() => { setGroupBy("date"); setShowGroupBy(false); }}
                   className="w-full flex items-center justify-between px-3 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                 >
-                  Date
+                  {t("sidebar.groupDate")}
                   {groupBy === "date" && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5">
                       <path d="M20 6L9 17l-5-5" />
@@ -288,14 +290,14 @@ export default function Sidebar({
             ) : (
               // Grouped by date
               <>
-                <GroupLabel label="Today" convos={grouped.today} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
-                <GroupLabel label="Yesterday" convos={grouped.yesterday} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
-                <GroupLabel label="This week" convos={grouped.thisWeek} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
-                <GroupLabel label="Older" convos={grouped.older} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
+                <GroupLabel label={t("sidebar.today")} convos={grouped.today} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
+                <GroupLabel label={t("sidebar.yesterday")} convos={grouped.yesterday} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
+                <GroupLabel label={t("sidebar.thisWeek")} convos={grouped.thisWeek} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
+                <GroupLabel label={t("sidebar.older")} convos={grouped.older} activeId={activeId} menuOpenId={menuOpenId} renamingId={renamingId} renameValue={renameValue} setMenuOpenId={setMenuOpenId} setRenamingId={setRenamingId} setRenameValue={setRenameValue} onSelect={onSelectConversation} onDelete={onDeleteConversation} onRenameSubmit={handleRenameSubmit} />
               </>
             )}
             {!isLoadingConversations && conversations.length === 0 && (
-              <p className="text-xs text-[var(--text-muted)] px-3 mt-4">No conversations yet</p>
+              <p className="text-xs text-[var(--text-muted)] px-3 mt-4">{t("sidebar.noConversations")}</p>
             )}
           </div>
         </div>
@@ -324,7 +326,7 @@ export default function Sidebar({
                       <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
-                    Settings
+                    {t("menu.settings")}
                   </button>
 
                   <button
@@ -336,7 +338,7 @@ export default function Sidebar({
                       <path d="M18 20V4" />
                       <path d="M6 20v-4" />
                     </svg>
-                    Weekly limit
+                    {t("menu.weeklyLimit")}
                   </button>
 
                   <button
@@ -348,7 +350,7 @@ export default function Sidebar({
                       <circle cx="9" cy="11" r="1.5" fill="currentColor" stroke="none" />
                       <circle cx="15" cy="11" r="1.5" fill="currentColor" stroke="none" />
                     </svg>
-                    Agent info
+                    {t("menu.agentInfo")}
                   </button>
                 </div>
 
@@ -363,7 +365,7 @@ export default function Sidebar({
                       <polyline points="16 17 21 12 16 7" />
                       <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
-                    Log out
+                    {t("menu.logout")}
                   </button>
                 </div>
               </div>
@@ -437,6 +439,7 @@ function RecentItem({
   onDelete: (id: string) => void;
   onRenameSubmit: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   if (renamingId === conv.id) {
     return (
       <div className="px-3 py-1.5">
@@ -500,7 +503,7 @@ function RecentItem({
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
             </svg>
-            Rename
+            {t("sidebar.rename")}
           </button>
           <button
             onClick={(e) => {
@@ -513,7 +516,7 @@ function RecentItem({
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
             </svg>
-            Delete
+            {t("sidebar.delete")}
           </button>
         </div>
       )}

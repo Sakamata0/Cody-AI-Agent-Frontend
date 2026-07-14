@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSettings } from "@/lib/SettingsContext";
 import { useAuth } from "@/lib/AuthContext";
+import { useTranslation } from "@/lib/useTranslation";
 import { api } from "@/lib/api";
 import { UserSettings, UserSettingsUpdate } from "@/lib/types";
 import { AVATAR_DESIGNS, AvatarIcon, getInitials } from "@/lib/avatars";
@@ -14,6 +15,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ onClose }: SettingsModalProps) {
   const { settings, update } = useSettings();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [displayName, setDisplayName] = useState("");
   const [avatarIndex, setAvatarIndex] = useState<number | null>(null);
@@ -156,11 +158,11 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           <div className="p-6 space-y-8">
             {/* Profile Section */}
             <section>
-              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-5">Profile</h2>
+              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-5">{t("settings.profile")}</h2>
 
               {/* Avatar */}
               <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
-                <span className="text-sm text-[var(--text-secondary)]">Avatar</span>
+                <span className="text-sm text-[var(--text-secondary)]">{t("settings.avatar")}</span>
                 <div className="relative group">
                   {/* Avatar circle — click to randomize */}
                   <button
@@ -207,7 +209,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
               {/* Full name */}
               <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
                 <div className="flex flex-col">
-                  <span className="text-sm text-[var(--text-secondary)]">Full name</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t("settings.fullName")}</span>
                   {nameError && <span className="text-xs text-red-400 mt-0.5">{nameError}</span>}
                 </div>
                 <div className="flex flex-col items-end">
@@ -216,7 +218,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                     value={displayName}
                     onChange={(e) => handleNameChange(e.target.value)}
                     maxLength={50}
-                    placeholder="Your name"
+                    placeholder={t("settings.namePlaceholder")}
                     className={`w-[220px] text-right text-sm px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none transition-colors ${
                       nameError ? "border-red-400 focus:border-red-400" : "border-[var(--border)] focus:border-[var(--accent)]"
                     }`}
@@ -227,18 +229,18 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
 
               {/* Email (read-only) */}
               <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
-                <span className="text-sm text-[var(--text-secondary)]">Email</span>
+                <span className="text-sm text-[var(--text-secondary)]">{t("settings.email")}</span>
                 <span className="text-sm text-[var(--text-muted)]">{user?.email || "—"}</span>
               </div>
             </section>
 
             {/* Preferences Section */}
             <section>
-              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-5">Preferences</h2>
+              <h2 className="text-base font-semibold text-[var(--text-primary)] mb-5">{t("settings.preferences")}</h2>
 
               {/* Appearance */}
               <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
-                <span className="text-sm text-[var(--text-secondary)]">Appearance</span>
+                <span className="text-sm text-[var(--text-secondary)]">{t("settings.appearance")}</span>
                 <div className="flex items-center bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border)] p-0.5">
                   <button
                     type="button"
@@ -272,7 +274,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
 
               {/* Language */}
               <div className="flex items-center justify-between py-3 border-b border-[var(--border)]">
-                <span className="text-sm text-[var(--text-secondary)]">Language</span>
+                <span className="text-sm text-[var(--text-secondary)]">{t("settings.language")}</span>
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as "en" | "fr" | "ar")}
@@ -281,7 +283,6 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 >
                   <option value="en">English</option>
                   <option value="fr">Français</option>
-                  <option value="ar">العربية</option>
                 </select>
               </div>
             </section>
