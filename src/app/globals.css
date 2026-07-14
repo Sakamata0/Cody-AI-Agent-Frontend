@@ -15,6 +15,22 @@
   --assistant-bubble: transparent;
 }
 
+/* Light mode — applied via .light class on <body> by ThemeManager */
+body.light {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ebebf0;
+  --bg-hover: #e2e2ea;
+  --text-primary: #111118;
+  --text-secondary: #4a4a60;
+  --text-muted: #8a8aa0;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #d8d8e8;
+  --user-bubble: #e2e2ea;
+  --assistant-bubble: transparent;
+}
+
 * {
   box-sizing: border-box;
 }
