@@ -130,7 +130,7 @@ export default function Sidebar({
           bg-[var(--bg-secondary)]
           flex flex-col transition-all duration-300 ease-in-out
           whitespace-nowrap
-          ${isOpen ? "w-[260px]" : "w-[48px] overflow-hidden"}
+          ${isOpen ? "w-full sm:w-[260px]" : "w-[48px] overflow-hidden"}
         `}
       >
         {/* Top: Logo + Search + Collapse */}
@@ -309,8 +309,11 @@ export default function Sidebar({
         <div className={`${isOpen ? "px-3" : "px-1"} py-3`} ref={userMenuRef}>
           <div className="relative">
             {/* User Menu Popup */}
-            {showUserMenu && isOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 z-50 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl shadow-xl py-1.5 min-w-[200px]">
+            {showUserMenu && (
+              <div
+                className="fixed bottom-16 z-50 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl shadow-xl py-1.5 min-w-[200px]"
+                style={{ left: isOpen ? "12px" : "4px" }}
+              >
                 {/* Email header */}
                 <div className="px-4 py-2 border-b border-[var(--border)]">
                   <p className="text-xs text-[var(--text-muted)] truncate">{user?.email || ""}</p>
@@ -372,6 +375,15 @@ export default function Sidebar({
             )}
 
             {/* User Pill Button */}
+            {!settings ? (
+              /* Skeleton loader while settings load */
+              <div className={`w-full flex items-center ${isOpen ? "gap-3 px-3" : "justify-center"} py-2`}>
+                <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] animate-pulse flex-shrink-0" />
+                {isOpen && contentVisible && (
+                  <div className="flex-1 h-4 rounded bg-[var(--bg-tertiary)] animate-pulse" />
+                )}
+              </div>
+            ) : (
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className={`w-full flex items-center ${isOpen ? "gap-3 px-3" : "justify-center"} py-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors`}
@@ -407,6 +419,7 @@ export default function Sidebar({
                 </>
               )}
             </button>
+            )}
           </div>
         </div>
       </aside>

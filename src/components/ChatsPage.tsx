@@ -53,18 +53,18 @@ export default function ChatsPage({
   return (
     <main
       className={`
-        flex-1 flex flex-col h-screen
+        flex-1 flex flex-col h-screen overflow-hidden
         transition-all duration-300 ease-in-out
         ${sidebarOpen ? "ml-[260px]" : "ml-[48px]"}
       `}
     >
-      <div className="max-w-4xl mx-auto w-full px-6 pt-16 pb-8">
+      <div className="max-w-4xl mx-auto w-full px-4 md:px-6 pt-16 pb-8 overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">{t("chats.title")}</h1>
           <button
             onClick={onNewChat}
-            className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors whitespace-nowrap"
           >
             {t("chats.newChat")}
           </button>

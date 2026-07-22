@@ -1,13 +1,87 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState, useEffect, useRef, useCallback } from "react";
+import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Message, Step } from "@/lib/types";
 import CodyAvatar from "./CodyAvatar";
 
 // Custom event to open modals from anywhere
 export const openUsageModal = () => window.dispatchEvent(new CustomEvent("open-usage-modal"));
+
+// Copy button for code blocks
+function CodeBlock({ children, className }: { children: string; className?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(children.trim());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [children]);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+      >
+        {copied ? (
+          <>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            Copied!
+          </>
+        ) : (
+          <>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+            Copy
+          </>
+        )}
+      </button>
+      <pre className={className}>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+}
+
+// Thinking animation: synced with aura pulse (2.4s cycle)
+// thinking -> thinking. -> thinking.. -> thinking... (each step = 600ms, full cycle = 2.4s)
+function ThinkingText() {
+  const [dots, setDots] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDots((prev) => (prev + 1) % 4);
+    }, 600);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <span className="text-sm text-[var(--text-muted)] italic">
+      thinking{".".repeat(dots)}
+    </span>
+  );
+}
+
+// Custom markdown components with copy button on code blocks
+const markdownComponents: Components = {
+  pre({ children }) {
+    // Extract code content from the <code> child
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const codeElement = children as any;
+    if (codeElement?.props?.children) {
+      const code = String(codeElement.props.children).replace(/\n$/, "");
+      const className = codeElement.props.className || "";
+      return <CodeBlock className={className}>{code}</CodeBlock>;
+    }
+    return <pre>{children}</pre>;
+  },
+};
 export const openContactSupport = () => {
   window.location.href = "mailto:support@smartovate.com?subject=Usage%20Limit%20Extension%20Request";
 };
@@ -45,7 +119,10 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
       ) : (
         <div className="max-w-[85%] space-y-3">
           {/* Avatar — pulses only while thinking (no content yet) */}
-          <CodyAvatar className="w-7 h-7" animate={isLast && !message.content} showAura={isLast && !message.content} />
+          <div className="flex items-center gap-2">
+            <CodyAvatar className="w-7 h-7" animate={isLast && !message.content} showAura={isLast && !message.content} />
+            {isLast && !message.content && <ThinkingText />}
+          </div>
 
           {/* Reasoning Timeline (shown above the answer) */}
           {hasSteps && (
@@ -62,7 +139,7 @@ export default function ChatMessage({ message, isLast = false, isLive = false }:
                   {isLast && isLive ? (
                     <TypewriterMarkdown content={message.content} />
                   ) : (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{message.content}</ReactMarkdown>
                   )}
                 </div>
               )}
@@ -144,11 +221,11 @@ function TypewriterMarkdown({ content }: { content: string }) {
   }, [content, done, displayedLength]);
 
   if (done) {
-    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+    return <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{content}</ReactMarkdown>;
   }
 
   const partial = content.slice(0, displayedLength);
-  return <ReactMarkdown remarkPlugins={[remarkGfm]}>{partial || " "}</ReactMarkdown>;
+  return <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{partial || " "}</ReactMarkdown>;
 }
 
 function ReasoningTimeline({ steps, hasContent }: { steps: Step[]; hasContent: boolean }) {

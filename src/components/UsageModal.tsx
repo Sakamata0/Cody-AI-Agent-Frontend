@@ -82,7 +82,7 @@ export default function UsageModal({ onClose }: UsageModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[var(--text-secondary)]">{t("usage.messages")}</span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
-                    {messagesUsed} / {messagesLimit}
+                    {Math.round(percentage)}%
                   </span>
                 </div>
 
