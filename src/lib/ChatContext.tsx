@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Conversation, Message, Step } from "./types";
 import { api } from "./api";
@@ -23,6 +23,7 @@ interface ChatContextType {
   loadConversation: (id: string) => Promise<void>;
   startNewChat: () => void;
   sendMessage: (content: string) => void;
+  stopGeneration: () => void;
   deleteConversation: (id: string) => Promise<void>;
   renameConversation: (id: string, title: string) => Promise<void>;
 }
@@ -42,6 +43,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [conversationsLoading, setConversationsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -96,7 +98,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const placeholderMsg: Message = { role: "assistant", content: "", steps: [] };
     setMessages((prev) => [...prev, placeholderMsg]);
 
-    api.chatStream(
+    const controller = api.chatStream(
       content,
       activeConversationId,
       (stepData) => {
@@ -150,6 +152,30 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       },
     );
+    abortControllerRef.current = controller;
+  }
+
+  function stopGeneration() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsLoading(false);
+    // Update the placeholder to show stopped message
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.role === "assistant" && !last.content) {
+        const updated = prev.slice(0, -1);
+        return [...updated, { ...last, content: "*(Generation stopped)*" }];
+      }
+      return prev;
+    });
+    // If this was a brand new unsaved conversation, go home to avoid 404 on refresh
+    if (!activeConversationId) {
+      setActiveConversationId(null);
+      setMessages([]);
+      router.push("/");
+    }
   }
 
   async function deleteConversation(id: string) {
@@ -177,7 +203,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     <ChatContext.Provider value={{
       conversations, activeConversationId, messages, isLoading,
       messagesLoading, conversationsLoading, sidebarOpen, showSearch, setSidebarOpen, setShowSearch,
-      loadConversations, loadConversation, startNewChat, sendMessage,
+      loadConversations, loadConversation, startNewChat, sendMessage, stopGeneration,
       deleteConversation, renameConversation,
     }}>
       {children}

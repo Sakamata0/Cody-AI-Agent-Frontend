@@ -4,7 +4,7 @@ import { useChat } from "@/lib/ChatContext";
 import ChatArea from "@/components/ChatArea";
 
 export default function Home() {
-  const { messages, isLoading, sidebarOpen, sendMessage, setSidebarOpen } = useChat();
+  const { messages, isLoading, sidebarOpen, sendMessage, stopGeneration, setSidebarOpen } = useChat();
 
   return (
     <ChatArea
@@ -12,6 +12,7 @@ export default function Home() {
       isLoading={isLoading}
       sidebarOpen={sidebarOpen}
       onSendMessage={sendMessage}
+      onStop={stopGeneration}
       onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
     />
   );

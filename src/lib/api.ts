@@ -272,36 +272,43 @@ export const api = {
         const decoder = new TextDecoder();
         let buffer = "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n\n");
-          buffer = lines.pop() || "";
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n\n");
+            buffer = lines.pop() || "";
 
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.event === "done") {
-                  onDone({
-                    response: data.response,
-                    session_id: data.session_id || sessionId || "",
-                    steps: data.steps || [],
-                    latency_ms: data.latency_ms || 0,
-                  });
-                } else if (data.event === "session") {
-                  if (data.session_id) {
-                    onStep({ event: "session", data: { session_id: data.session_id } });
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.event === "done") {
+                    onDone({
+                      response: data.response,
+                      session_id: data.session_id || sessionId || "",
+                      steps: data.steps || [],
+                      latency_ms: data.latency_ms || 0,
+                    });
+                  } else if (data.event === "session") {
+                    if (data.session_id) {
+                      onStep({ event: "session", data: { session_id: data.session_id } });
+                    }
+                  } else {
+                    onStep(data);
                   }
-                } else {
-                  onStep(data);
+                } catch {
+                  // skip malformed JSON
                 }
-              } catch {
-                // skip malformed JSON
               }
             }
+          }
+        } catch (readErr: unknown) {
+          // Silently ignore AbortError from reader
+          if (readErr instanceof Error && readErr.name !== "AbortError") {
+            throw readErr;
           }
         }
       })

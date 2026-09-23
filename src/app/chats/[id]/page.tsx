@@ -10,7 +10,7 @@ export default function ConversationRoute() {
   const id = params.id as string;
   const {
     messages, isLoading, messagesLoading, sidebarOpen, activeConversationId,
-    sendMessage, setSidebarOpen, loadConversation,
+    sendMessage, stopGeneration, setSidebarOpen, loadConversation,
   } = useChat();
 
   // Load the conversation if we navigate directly to this URL
@@ -30,6 +30,7 @@ export default function ConversationRoute() {
       messagesLoading={isLoadingConversation}
       sidebarOpen={sidebarOpen}
       onSendMessage={sendMessage}
+      onStop={stopGeneration}
       onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
     />
   );

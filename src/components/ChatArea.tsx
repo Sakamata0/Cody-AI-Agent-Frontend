@@ -14,6 +14,7 @@ interface ChatAreaProps {
   sidebarOpen: boolean;
   onSendMessage: (message: string) => void;
   onToggleSidebar: () => void;
+  onStop?: () => void;
 }
 
 export default function ChatArea({
@@ -23,6 +24,7 @@ export default function ChatArea({
   sidebarOpen,
   onSendMessage,
   onToggleSidebar,
+  onStop,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -117,7 +119,7 @@ export default function ChatArea({
       {hasMessages && (
         <div className="sticky bottom-0 bg-[var(--bg-primary)]">
           <div className="max-w-3xl mx-auto px-4">
-            <ChatInput onSend={onSendMessage} isLoading={isLoading} />
+            <ChatInput onSend={onSendMessage} isLoading={isLoading} onStop={onStop} />
             <p className="text-center text-xs text-[var(--text-muted)] my-2">
               {t("chat.disclaimer")}
             </p>
