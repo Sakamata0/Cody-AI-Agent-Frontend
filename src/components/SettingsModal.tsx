@@ -34,14 +34,23 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     language: "en" | "fr" | "ar";
   } | null>(null);
 
+  function formatDefaultName(name: string, email?: string): string {
+    if (name && name !== "User") return name;
+    if (!email) return "User";
+    const prefix = email.split("@")[0] || "";
+    const letters = prefix.replace(/[^a-zA-ZÀ-ÿ]/g, "");
+    return letters.length >= 1 ? letters.charAt(0).toUpperCase() + letters.slice(1) : "User";
+  }
+
   useEffect(() => {
     if (settings) {
-      setDisplayName(settings.display_name);
+      const name = formatDefaultName(settings.display_name, user?.email);
+      setDisplayName(name);
       setAvatarIndex(settings.avatar_index ?? null);
       setTheme(settings.theme);
       setLanguage(settings.language);
       originalRef.current = {
-        display_name: settings.display_name,
+        display_name: name,
         avatar_index: settings.avatar_index ?? null,
         theme: settings.theme,
         language: settings.language,
@@ -50,12 +59,13 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     } else {
       api.getSettings()
         .then((s: UserSettings) => {
-          setDisplayName(s.display_name);
+          const name = formatDefaultName(s.display_name, user?.email);
+          setDisplayName(name);
           setAvatarIndex(s.avatar_index ?? null);
           setTheme(s.theme);
           setLanguage(s.language);
           originalRef.current = {
-            display_name: s.display_name,
+            display_name: name,
             avatar_index: s.avatar_index ?? null,
             theme: s.theme,
             language: s.language,
@@ -64,7 +74,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         .catch(() => setError("Failed to load settings"))
         .finally(() => setLoading(false));
     }
-  }, [settings]);
+  }, [settings, user?.email]);
 
   function handleNameChange(value: string) {
     const filtered = value.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, "");

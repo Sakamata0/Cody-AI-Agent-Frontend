@@ -88,7 +88,15 @@ export default function Sidebar({
     return () => window.removeEventListener("open-usage-modal", handleOpenUsage);
   }, []);
 
-  const displayName = settings?.display_name || user?.email?.split("@")[0] || "User";
+  function formatDefaultName(email?: string): string {
+    if (!email) return "User";
+    const prefix = email.split("@")[0] || "";
+    const letters = prefix.replace(/[^a-zA-ZÀ-ÿ]/g, "");
+    return letters.length >= 1 ? letters.charAt(0).toUpperCase() + letters.slice(1) : "User";
+  }
+
+  const rawName = settings?.display_name;
+  const displayName = (!rawName || rawName === "User") ? formatDefaultName(user?.email) : rawName;
   const initials = getInitials(displayName);
   const avatarDesign = settings?.avatar_index != null ? AVATAR_DESIGNS[settings.avatar_index] : null;
 
